@@ -13,6 +13,7 @@ Members: Lena ,Malcom, Willhelmi, Tony, Kyle, and  Leonardo
 #define SD_ChipSelectPin 53
 
 
+
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);  // initialize the LCD library with the numbers of the interface pins
 DS3231  rtc(SDA, SCL);  //Init the DS3231 using the hardware interface
 
