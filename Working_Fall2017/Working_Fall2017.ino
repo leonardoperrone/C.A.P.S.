@@ -15,22 +15,21 @@ Members: Lena ,Malcom, Willhelmi, Tony, Kyle, and  Leonardo
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);  // initialize the LCD library with the numbers of the interface pins
 DS3231  rtc(SDA, SCL);  //Init the DS3231 using the hardware interface
+SoftwareSerial mySerial(14, 15); // for Keychain Connection BLE
 
 //Function Prototypes
 void audio_play(int const &audio);  //Function to play audio
-void window_breaker(int const &window);  //Function to break window
 void saveData();  // write data to SD card
 void display(String dspl1, String dspl2, String dspl3);  //display on the LCD
 
 String dataString, dataString1, dataString2, dataString3;
 int val;  //varible to store temperature reading
 int tempPin = A0;  //Analogue pin A0 
-int smokeA0 = A1;  //Assign pin A1 to the fumes snsor
 int sensorThres = 400;  //threshold value for fumes sensor
 const int chipSelect = 53;  //Card Select pin
-
+int rssiInput = 20;
 int speaker = 48;
- 
+
 void setup()
 {
   Serial.begin(115200);  // Open serial communications and wait for port to open:
@@ -45,6 +44,7 @@ void setup()
   
   pinMode(smokeA0, INPUT);  //Fumes sensor, set the pin to input mode
   pinMode(speaker, OUTPUT); // audio output pin 
+  pinMode(rssiInput, INPUT); //input for distance readings
   
   lcd.begin(20, 4);  //Initialize the LCD to 20 collums and 4 rows (set up the LCD's number of columns and rows)
   lcd.print("      C.A.P.S."); // Print a permanent message to the LCD.
@@ -57,10 +57,19 @@ void setup()
       return;
     }
   Serial.println("card initialized.");
+  mySerial.begin(115200); // open serial comms with the hm-10 BLE
+  // Since it is the Central Device We must start it to automatically connect to the keychain and speaker
+  mySerial.print("AT+START");
 }
 
 void loop()
 {
+
+ // if rssi digital pin high then
+ // mySerial.print("ON");
+ // if rssi digital pin low
+ // mySerial.print("OFF");
+  
 val = analogRead(tempPin);
 float mv = ( val/1024.0)*5000; 
 float cel = mv/10;
@@ -83,6 +92,7 @@ if(farh > 80) {
 } else {
   digitalWrite(speaker, HIGH);
 }
+
 
 //Fumes Sensor
 //  int analogSensor = analogRead(smokeA0);
