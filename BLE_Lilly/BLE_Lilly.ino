@@ -4,13 +4,8 @@ void setup() {
   // the BLE Slave already set up to auto connect to the master.
   Serial.begin(BAUD_RATE);
   Serial1.begin(BAUD_RATE);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
-  }
 
-  pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
 
 }
 
@@ -18,30 +13,34 @@ void loop() {
   // This if statements that if we get an incoming message write it to the serial monitor of the arduino.
   if (Serial1.available() > 0)
   {
-    auto c = Serial1.readString();
+    String c = Serial1.readString();
     Serial.println(c);
     // if c is a certain message utilized to wake up the Keychain from sleep then we wake it up from sleep mode and activate everything
-    if (c == "ON")
+    if (c == "ON" || c == "ONON")
     {
       // make led light up
       digitalWrite(6, HIGH);
       // create speaker tone
       tone(5, 500);
-      // vibration
-      digitalWrite(7, HIGH);
+      // vibration?
     }
-    else if ( c == "OFF")
+    // else the keychain will remain in a sleeping state broadcasting a low power
+    else if ( c == "OFF" || c == "OFFOFF")
     {
-            // make led light up
+      // turn everything off
       digitalWrite(6, LOW);
-      // create speaker tone
-      tone(5, 0);
-      // vibration
-      digitalWrite(7, LOW);
+      noTone(5);
     }
-      
   }
-  // uncomment to see what's being sent to the keychain
-//  if (Serial.available())
-//    Serial1.write(Serial.read());
+//  else
+//  {
+//    // turn everything off
+//    digitalWrite(6, LOW);
+//    noTone(5);
+//  }
+  //
+  //  This if statement means that if we write something to the serial monitor it'll write to the Serial of the Bluetooth module
+  //  if (Serial.available())
+  //    Serial1.write(Serial.read());
+  //  digitalWrite(5, HIGH);
 }
