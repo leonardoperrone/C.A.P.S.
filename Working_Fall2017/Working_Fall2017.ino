@@ -22,7 +22,9 @@ void audio_play(int const &audio);  //Function to play audio
 void saveData();  // write data to SD card
 void display(String dspl1, String dspl2, String dspl3);  //display on the LCD
 
-String dataString, dataString1, dataString2, dataString3;
+ String kcStatus;
+ String spkStatus;
+String dataString, dataString1, dataString2, dataString3, dataString4;
 int val;  //varible to store temperature reading
 int tempPin = A0;  //Analogue pin A0
 int sensorThres = 400;  //threshold value for fumes sensor
@@ -31,6 +33,7 @@ int rssiInput = 49;
 int speaker = 48;
 bool keyFlag = false;
 int keyCounter = 0;
+const int counter = 5000;
 
 void setup()
 {
@@ -76,10 +79,13 @@ void loop()
   if ( digitalRead(rssiInput) == HIGH)
   {
     keyFlag = true;
+     kcStatus = "OUT";
+    
   }
   else
   {
     keyFlag = false;
+     kcStatus = "IN ";
   }
   if (keyFlag)
   {
@@ -91,29 +97,39 @@ void loop()
     mySerial.print("OFF");
   }
 
-
+float avr_temp;
+//float cel;
+ for(int i =0; i< counter; i++)
+  {
   val = analogRead(tempPin);
   float mv = ( val / 1024.0) * 5000;
   float cel = mv / 10;
   float farh = (cel * 9) / 5 + 32;
+  avr_temp = avr_temp + farh;
+  }
+float farh = avr_temp/counter;
+ 
+  
 
-
-  dataString = String(rtc.getDOWStr()) + "," + String(rtc.getDateStr()) + "," + String(rtc.getTimeStr()) + "," + String(cel) + "," + "*C" + "," + String(farh) + "," +  "*F"; // convert to CSV for data logging
+  //dataString = String(rtc.getDOWStr()) + "," + String(rtc.getDateStr()) + "," + String(rtc.getTimeStr()) + "," + String(cel) + "," + "*C" + "," + String(farh) + "," +  "*F"; // convert to CSV for data logging
   dataString1 = String(rtc.getDateStr()) + " " + String(rtc.getTimeStr());
   dataString2 = "Temp is:  " + String(farh) +  "*F" ;
-  dataString3 = "RSSI STATUS: " + String(keyFlag);
+  dataString3 = "KC: " + kcStatus;
+  dataString4 = "SP: " + spkStatus;
 
   //Serial.println(dataString);
   //saveData(); // save to SD card
   Serial.println(dataString);
-  delay(1000);  //delay for this amount of time (1000 == 1 second)
+  //delay(1000);  //delay for this amount of time (1000 == 1 second)
 
-  display(dataString1, dataString2, dataString3);  //send data to LCD
+  display(dataString1, dataString2, dataString3, dataString4);  //send data to LCD
 
   if (farh > 80) {
     digitalWrite(speaker, LOW);
+    spkStatus = " bCrying ";
   } else {
     digitalWrite(speaker, HIGH);
+    spkStatus =" nSound ";
   }
 
 
@@ -156,7 +172,7 @@ void saveData()
 
 //function to display on LCD
 
-void display(String dspl1, String dspl2, String dspl3)
+void display(String dspl1, String dspl2, String dspl3, String dspl4)
 {
   //Print on the LCD
   // set the cursor to column 0, line 1
@@ -168,6 +184,8 @@ void display(String dspl1, String dspl2, String dspl3)
   lcd.print(dspl2);
   lcd.setCursor(0, 3);
   lcd.print(dspl3);
+  lcd.setCursor(8, 3);
+  lcd.print(dspl4);
 }
 
 
