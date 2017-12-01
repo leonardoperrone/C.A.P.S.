@@ -99,6 +99,7 @@ void loop()
 
 float avr_temp;
 //float cel;
+
  for(int i =0; i< counter; i++)
   {
   val = analogRead(tempPin);
